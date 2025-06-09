@@ -1,4 +1,4 @@
-package com.config;
+package com.example.todo_service.config;
 
 import com.example.todo_service.model.Board;
 import com.example.todo_service.model.Status;

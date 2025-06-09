@@ -1,40 +1,84 @@
 package com.example.todo_service.controller;
 
+import com.example.todo_service.model.Board;
+import com.example.todo_service.model.Status;
 import com.example.todo_service.model.Task;
+import com.example.todo_service.service.BoardService;
 import com.example.todo_service.service.TaskService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/tasks")
+@Controller
 @RequiredArgsConstructor
 public class TaskController {
 
     private final TaskService taskService;
+    private final BoardService boardService;
 
-    @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    // Обработка POST формы добавления задачи
+    @PostMapping("/task")
+    public String createTask(@RequestParam String title,
+            @RequestParam String description,
+            @RequestParam Status status,
+            @RequestParam Long boardId) {
+
+        Board board = boardService.getBoardById(boardId)
+                .orElseThrow(() -> new RuntimeException("Board not found"));
+
+        Task task = Task.builder()
+                .title(title)
+                .description(description)
+                .status(status)
+                .board(board)
+                .build();
+
+        taskService.saveTask(task);
+        return "redirect:/";
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        return taskService.getTaskById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+
+    // Обработка изменения статуса задачи
+    @PostMapping("/task/status/{id}")
+    public String updateTaskStatus(@PathVariable Long id, @RequestParam Status status) {
+        taskService.updateStatus(id, status);
+        return "redirect:/";
     }
 
-    @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        return taskService.createTask(task);
+    @PostMapping("/task/update-status")
+    public String updateStatus(@RequestParam Long taskId,
+            @RequestParam String direction) {
+
+        Task task = taskService.getTaskById(taskId).orElse(null);
+        if (task == null)
+            return "redirect:/";
+
+        Status current = task.getStatus();
+        Status updated = current;
+
+        if ("left".equals(direction)) {
+            if (current == Status.IN_PROGRESS)
+                updated = Status.TODO;
+            else if (current == Status.DONE)
+                updated = Status.IN_PROGRESS;
+        } else if ("right".equals(direction)) {
+            if (current == Status.TODO)
+                updated = Status.IN_PROGRESS;
+            else if (current == Status.IN_PROGRESS)
+                updated = Status.DONE;
+        }
+
+        task.setStatus(updated);
+        taskService.saveTask(task);
+
+        return "redirect:/";
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        taskService.deleteTask(id);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/task/delete")
+    public String deleteTask(@RequestParam Long taskId) {
+        taskService.deleteTask(taskId);
+        return "redirect:/";
     }
+
 }

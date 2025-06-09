@@ -14,12 +14,12 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
 
-    public List<Board> getAllBoards() {
-        return boardRepository.findAll();
-    }
-
     public Optional<Board> getBoardById(Long id) {
         return boardRepository.findById(id);
+    }
+
+    public List<Board> getAllBoards() {
+        return boardRepository.findAll();
     }
 
     public Board createBoard(Board board) {
@@ -29,4 +29,9 @@ public class BoardService {
     public void deleteBoard(Long id) {
         boardRepository.deleteById(id);
     }
+
+    public void saveBoard(Board board) {
+        boardRepository.save(board);
+    }
+
 }

@@ -3,27 +3,92 @@
 <head>
     <title>Канбан-доска</title>
     <meta charset="UTF-8">
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f7f7f7; }
-        h1 { text-align: center; }
-        .board { border: 1px solid #ccc; border-radius: 8px; background: white; margin: 20px auto; padding: 20px; width: 80%; }
-        .task { padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #e0e0e0; }
-        .status { font-weight: bold; }
-    </style>
+    <!-- Подключаем Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<h1>Канбан-доска</h1>
+<body class="bg-light">
 
-<div th:each="board : ${boards}" class="board">
-    <h2 th:text="${board.name}">Имя доски</h2>
+<div class="container py-4">
+    <h1 class="text-center mb-4">Канбан-доска</h1>
 
-    <div th:each="task : ${board.tasks}">
-        <div class="task">
-            <p><strong th:text="${task.title}">Заголовок</strong></p>
-            <p th:text="${task.description}">Описание</p>
-            <p class="status" th:text="'Статус: ' + ${task.status}">Статус</p>
+    <div th:each="board : ${boards}" class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0" th:text="${board.name}">Имя доски</h2>
+        </div>
+        <div class="card-body">
+            <div th:each="task : ${board.tasks}" class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${task.title}">Заголовок</h5>
+                    <p class="card-text" th:text="${task.description}">Описание</p>
+                    <p class="card-text"><strong th:text="'Статус: ' + ${task.status}">Статус</strong></p>
+
+                    <form th:action="@{/task/update-status}" method="post" class="d-inline">
+                        <input type="hidden" name="taskId" th:value="${task.id}">
+                        <input type="hidden" name="direction" value="left">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">←</button>
+                    </form>
+
+                    <form th:action="@{/task/update-status}" method="post" class="d-inline">
+                        <input type="hidden" name="taskId" th:value="${task.id}">
+                        <input type="hidden" name="direction" value="right">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">→</button>
+                    </form>
+
+                    <form th:action="@{/task/delete}" method="post" class="d-inline">
+                        <input type="hidden" name="taskId" th:value="${task.id}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Создание новой задачи -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">Создать задачу</div>
+        <div class="card-body">
+            <form action="/task" method="post">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Название</label>
+                    <input type="text" id="title" name="title" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Описание</label>
+                    <input type="text" id="description" name="description" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="status" class="form-label">Статус</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="TODO">TODO</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="DONE">DONE</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="boardId" class="form-label">Выберите доску</label>
+                    <select id="boardId" name="boardId" class="form-select">
+                        <option th:each="b : ${boards}" th:value="${b.id}" th:text="${b.name}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Создать задачу</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🆕 Форма создания доски -->
+    <div class="card">
+        <div class="card-header bg-info text-white">Создать новую доску</div>
+        <div class="card-body">
+            <form action="/board" method="post">
+                <div class="mb-3">
+                    <label for="boardName" class="form-label">Название доски</label>
+                    <input type="text" id="boardName" name="name" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-info">Создать доску</button>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 </body>

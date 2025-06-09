@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-TodoServiceApplication<kanban>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.todo_service.TodoServiceApplication",
+            "projectName": "kanban",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

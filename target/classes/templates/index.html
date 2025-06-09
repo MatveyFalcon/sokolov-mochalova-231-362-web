@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Канбан-доска</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f7f7f7; }
+        h1 { text-align: center; }
+        .board { border: 1px solid #ccc; border-radius: 8px; background: white; margin: 20px auto; padding: 20px; width: 80%; }
+        .task { padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #e0e0e0; }
+        .status { font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1>Канбан-доска</h1>
+
+<div th:each="board : ${boards}" class="board">
+    <h2 th:text="${board.name}">Имя доски</h2>
+
+    <div th:each="task : ${board.tasks}">
+        <div class="task">
+            <p><strong th:text="${task.title}">Заголовок</strong></p>
+            <p th:text="${task.description}">Описание</p>
+            <p class="status" th:text="'Статус: ' + ${task.status}">Статус</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
